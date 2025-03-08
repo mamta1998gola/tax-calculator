@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tax Calculator</title>
     <link rel="icon" type="image/png" href="taxicon.jpg">
-    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -86,6 +85,22 @@
             color: #04115c;
             font-size: 12px;
         }
+        .disclaimer {
+            font-weight: bold;
+            color: green;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .tr-old {
+            font-weight: bold;
+        }
         @media (max-width: 768px) {
             .container {
                 width: 100%;
@@ -139,6 +154,8 @@
         <i>Remove other deductions if you have any and then put the total income, new tax slab doesn't allow any deductions other than standard deductions.</i><br>
         <i>Also each amount value can be copied by just one click.</i><br>
         <table id="result"></table>
+        <p class="disclaimer">The Old Tax Regime allows more deductions but has higher tax rates. The New Tax Regime has lower rates but fewer deductions.</p>
+        <p class="disclaimer">The Old Tax Regime deductions (sec 80c, standard deduction, professional tax). (1,50,000 + 50,000 + 2,400)</p>
     </div>
 
     <script>
@@ -150,6 +167,27 @@
             navigator.clipboard.writeText(text).then(() => {
                 console.log("Copied to clipboard: " + text);
             });
+        }
+
+        function calculateOldTax() {
+            document.getElementById('taxSlabs').style.display = 'none';
+            let income = parseFloat(document.getElementById('income').value);
+            let deductions = 50000 + 2400 + 150000;
+            let taxableIncome = Math.max(0, income - deductions);
+            let tax = 0;
+            let slabs = [
+                [250000, 500000, 0.05],
+                [500000, 1000000, 0.20],
+                [1000000, Infinity, 0.30]
+            ];
+            for (let [lower, upper, rate] of slabs) {
+                if (taxableIncome > lower) {
+                    let amount = Math.min(taxableIncome, upper) - lower;
+                    if (amount > 0) tax += amount * rate;
+                }
+            }
+            console.log(taxableIncome, tax, deductions);
+            return tax + tax * 0.04;
         }
 
         function calculateTax() {
@@ -185,6 +223,9 @@
             let educationCess = tax * 0.04;
             let totalTax = tax + educationCess;
 
+            let oldTax = calculateOldTax();
+            let taxDifference = oldTax - totalTax;
+
             document.getElementById('result').innerHTML = `
                 <tr><th>Description</th><th>Amount (₹)</th></tr>
                 <tr><td>Total Income (A)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(income)}")'>₹${formatCurrency(income)}</td></tr>
@@ -193,6 +234,8 @@
                 <tr><td>Total tax (before cess) (C)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(tax)}")'>₹${formatCurrency(tax)}</td></tr>
                 <tr><td>Education Cess (4%) (D)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(educationCess)}")'>₹${formatCurrency(educationCess)}</td></tr>
                 <tr><td>Total tax to be paid (including cess) (C+D)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(totalTax)}")'>₹${formatCurrency(totalTax)}</td></tr>
+                <tr class='tr-old'><td>Old Tax Regime Tax</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(oldTax)}")'>₹${formatCurrency(oldTax)}</td></tr>
+                <tr class='tr-old'><td>Difference (Old - New)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(taxDifference)}")'>₹${formatCurrency(taxDifference)}</td></tr>
             `;
         }
     </script>
