@@ -5,112 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tax Calculator</title>
     <link rel="icon" type="image/png" href="taxicon.jpg">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 10px;
-        }
-        .container {
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 600px;
-            max-width: 100%;
-            height: auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        label {
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 10px;
-        }
-        input {
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            text-align: center;
-        }
-        button {
-            background: #007bff;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            width: 45%;
-            margin-top: 10px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-            text-align: left;
-        }
-        table, th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .copyable {
-            cursor: pointer;
-            color: #007bff;
-        }
-        i {
-            color: #04115c;
-            font-size: 12px;
-        }
-        .disclaimer {
-            font-weight: bold;
-            color: green;
-            font-size: 12px;
-            margin-top: 15px;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .tr-old {
-            font-weight: bold;
-        }
-        @media (max-width: 768px) {
-            .container {
-                width: 100%;
-                padding: 20px;
-            }
-            input, button {
-                width: 100%;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -191,6 +86,9 @@
         }
 
         function calculateTax() {
+            setTimeout(() => {
+                document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
             document.getElementById('taxSlabs').style.display = 'none';
             let income = parseFloat(document.getElementById('income').value);
             let standardDeduction = 75000;
