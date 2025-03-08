@@ -113,6 +113,20 @@ a:hover {
 }
 
 @media (max-width: 768px) {
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;  /* Ensures content stacks properly */
+        align-items: center;
+        justify-content: flex-start; /* Prevents vertical centering issues */
+        min-height: 100vh; /* Ensures the body takes full height */
+        overflow-x: hidden; /* Prevents unwanted horizontal scrolling */
+        overflow-y: auto; /* Allows scrolling if content overflows */
+    }
+    
     .container {
         width: 100%;
         padding: 20px;
