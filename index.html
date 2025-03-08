@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 600px;
+            max-width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        label {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 45%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .copyable {
+            cursor: pointer;
+            color: #007bff;
+        }
+        i {
+            color: #04115c;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                padding: 20px;
+            }
+            input, button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Income Tax Calculator (2025-26)</h1>
+        <label for="income">Enter Your Annual Income (₹):</label>
+        <input type="number" id="income" placeholder="Enter income" required>
+        <button onclick="calculateTax()">Calculate Tax</button>
+        <table id="taxSlabs">
+            <tr>
+                <th>Income Range</th>
+                <th>Tax Rate</th>
+            </tr>
+            <tr>
+                <td>₹0 - ₹4,00,000</td>
+                <td>5%</td>
+            </tr>
+            <tr>
+                <td>₹4,00,001 - ₹8,00,000</td>
+                <td>10%</td>
+            </tr>
+            <tr>
+                <td>₹8,00,001 - ₹12,00,000</td>
+                <td>15%</td>
+            </tr>
+            <tr>
+                <td>₹12,00,001 - ₹16,00,000</td>
+                <td>20%</td>
+            </tr>
+            <tr>
+                <td>₹16,00,001 - ₹20,00,000</td>
+                <td>25%</td>
+            </tr>
+            <tr>
+                <td>₹20,00,001 - ₹24,00,000</td>
+                <td>30%</td>
+            </tr>
+        </table>
+        <div>
+            <p>For more details visit: <a href="https://www.incometaxindia.gov.in/" target="_blank">Income Tax India</a></p>
+        <div>
+        <i>Remove other deductions if you have any and then put the total income, new tax slab doesn't allow any deductions other than standard deductions.</i><br>
+        <i>Also each amount value can be copied by just one click.</i><br>
+        <table id="result"></table>
+    </div>
+
+    <script>
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-IN').format(amount);
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                console.log("Copied to clipboard: " + text);
+            });
+        }
+
+        function calculateTax() {
+            document.getElementById('taxSlabs').style.display = 'none';
+            let income = parseFloat(document.getElementById('income').value);
+            let standardDeduction = 75000;
+            let taxableIncome = Math.max(0, income - standardDeduction);
+
+            if (income <= 1200000) {
+                document.getElementById('result').innerHTML = `<tr><td colspan='2'>Total tax to be paid: ₹0</td></tr>`;
+                return;
+            }
+
+            let tax = 0;
+            let slabs = [
+                [400000, 800000, 0.05],
+                [800000, 1200000, 0.10],
+                [1200000, 1600000, 0.15],
+                [1600000, 2000000, 0.20],
+                [2000000, 2400000, 0.25],
+                [2400000, Infinity, 0.30]
+            ];
+
+            let prevLimit = 0;
+            for (let [lower, upper, rate] of slabs) {
+                if (taxableIncome > lower) {
+                    let amount = Math.min(taxableIncome, upper) - Math.max(prevLimit, lower);
+                    if (amount > 0) tax += amount * rate;
+                    prevLimit = upper;
+                }
+            }
+
+            let educationCess = tax * 0.04;
+            let totalTax = tax + educationCess;
+
+            document.getElementById('result').innerHTML = `
+                <tr><th>Description</th><th>Amount (₹)</th></tr>
+                <tr><td>Total Income (A)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(income)}")'>₹${formatCurrency(income)}</td></tr>
+                <tr><td>Standard Deduction (B)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(standardDeduction)}")'>₹${formatCurrency(standardDeduction)}</td></tr>
+                <tr><td>Taxable Income (A-B)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(taxableIncome)}")'>₹${formatCurrency(taxableIncome)}</td></tr>
+                <tr><td>Total tax (before cess) (C)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(tax)}")'>₹${formatCurrency(tax)}</td></tr>
+                <tr><td>Education Cess (4%) (D)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(educationCess)}")'>₹${formatCurrency(educationCess)}</td></tr>
+                <tr><td>Total tax to be paid (including cess) (C+D)</td><td class='copyable' onclick='copyToClipboard("${formatCurrency(totalTax)}")'>₹${formatCurrency(totalTax)}</td></tr>
+            `;
+        }
+    </script>
+</body>
+</html>
